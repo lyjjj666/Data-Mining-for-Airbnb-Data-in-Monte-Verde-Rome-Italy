@@ -1,6 +1,6 @@
 ---
-title: "AD 699 Final Project"
-author: "Yulin Lu"
+title: "Data-Mining-for-Airbnb-Data-in-Monte-Verde-Rome-Italy"
+author: "Yijie Lou"
 date: "2023-12-03"
 output: html_document
 ---
@@ -52,7 +52,7 @@ mv1$review_scores_rating[is.na(mv1$review_scores_rating)] <- m
 colSums(is.na(mv1))
 ```
 
-S I I B: We first filter the original dataframe so that it only contains our neighborhood and columns that are important for the purpose of this project. Then the output above shows that only description, neighborhood_overview, and review_scores_rating have missing values. For both description and neighborhood_overview, we replace na values with empty space. The reason for doing so is that na in general description usually means there the host write nothing in that section, which is the same as empty space. This is a better approach than just deteling the na rows becausse that means we will lose about 14% of our data which is not ideal. Also, we can still do text mining on these two variables since empty space does not change anything. For review_scores_rating,we first check the summary stats for that column and then decide that it is best to replace missing values with its median value. There do exist 0s for the score which lower its mean and we think median is a more accurate representation of the true average score here.
+We first filter the original dataframe so that it only contains our neighborhood and columns that are important for the purpose of this project. Then the output above shows that only description, neighborhood_overview, and review_scores_rating have missing values. For both description and neighborhood_overview, we replace na values with empty space. The reason for doing so is that na in general description usually means there the host write nothing in that section, which is the same as empty space. This is a better approach than just deteling the na rows becausse that means we will lose about 14% of our data which is not ideal. Also, we can still do text mining on these two variables since empty space does not change anything. For review_scores_rating,we first check the summary stats for that column and then decide that it is best to replace missing values with its median value. There do exist 0s for the score which lower its mean and we think median is a more accurate representation of the true average score here.
 
 ```{r S I II A}
 mv1$price <- as.numeric(gsub("[\\$,]", "", mv1$price))
@@ -64,7 +64,7 @@ df <- data.frame(metric = ss_names, value = ss)
 df
 ```
 
-S I II B: The variable we are interested is price. In order to do any analysis on it we first get rid of the dollar sign and convert the column into numeric. The five summary statistics we use here are mean, median, minimum, maximum, and standard deviation. The max price is 9999 which is much higher than the average, even compared to the top 5 highest price. There is a high chance that it is entered incorrectly, maybe it was supposed to be 99.99 instead of 9999. We need to check further on that specific row in order to make final conclusion.
+The variable we are interested is price. In order to do any analysis on it we first get rid of the dollar sign and convert the column into numeric. The five summary statistics we use here are mean, median, minimum, maximum, and standard deviation. The max price is 9999 which is much higher than the average, even compared to the top 5 highest price. There is a high chance that it is entered incorrectly, maybe it was supposed to be 99.99 instead of 9999. We need to check further on that specific row in order to make final conclusion.
 
 Such high price also has a ribbling effect on the mean and standard deviation, which are 146 and 340. This does not make sense since that will mean any unit that is negative 1 standard deviation away from the mean price will have a negative price, which defies common sense. The median of the price is \$110 which is reasonable based on our domain knowledge for this area.
 
@@ -100,7 +100,7 @@ ggplot(mv3, aes(y = property_type, x = host_response_time, fill = review_scores_
   scale_fill_gradient(low = "red", high = "lightgreen") + theme_minimal() + geom_tile() + 
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + labs(title = 'Heat Map of Review Scores Rating')
 ```
-S I III B:
+
 The variable we choose here is review_scores_rating. In order to make the graphs more readable, we filter out all the datas with score below 3.5(they are outliers anyway and there are not so many of them). The first graph is a histogram shows the distribution of the rating. It seems like majority of the scores are from 4.4 to 5 with peak around 4.8, most of the hosts in our neighborhood have a good reputation. The second graph is a scatter plot of rating and number of reviews. Although the relationship between these two variables do not seem to be very linear, all the units that get 5 do not have that many reviews. Also, most of the units have under 100 reviews. 
 
 The third graph is another scatter plot of rating based on response rate and host length. The majority of units that get 5 seem to response very fast. The slow and very slow response tend to get lower ratings, but not by much. Review scores rating also do not seem to be affected by how long the person has been a host. The forth plot is a box plot based on booking convenience. Suprisingly the units that are not instant bookable are getting slightly lower scores. This might be due to the potential lack of communication if a unit could be booked instantly. The last graph is a heat map with respect to response time and property type. We get a consistent result on how response time affect review scores, and we can also see that property type does not influence ratings that much, since there is a relatively high range of scores across all types. 
@@ -146,7 +146,7 @@ missing_values <- sort(missing_values, decreasing = TRUE)
 missing_values
 sum(is.na(mv_mlr))
 ```
-S II I A:
+
 In the initial stage of my process, I preprocess the data to prepare it for a regression model, with 'price' as the dependent variable. Identifying true NA values throughout the dataset is crucial and several variables exhibit NA counts exceeding 500. When we are dealing with these variables, even if the NAs are replaced with the mean, median, or mode, might be unnecessary and introduce uncontrolled effects. In order to mitigate overfitting or underfitting in our model, we opt to drop variables with more than 500 NA values. 
 
 Some important variables, such as 'bedrooms' or 'review scores,' still have NA values. Variables like 'first review' or 'last review' are unrelated to our pricing model, so we eliminate them in a new dataset. Then, we use the median to fill in the NA values for 'review_scores_rating,' 'reviews_per_month,' 'bedrooms,' and 'beds.'
@@ -201,7 +201,7 @@ mv_data$log_price <- log(mv_data$price)
 variables_to_scale <- c("number_of_reviews", "availability_365")
 mv_data[variables_to_scale] <- scale(mv_data[variables_to_scale])
 ```
-S II I A:
+
 Additionally, we notice irrelevant variables like scraping time and URLs in a significant part of the dataset. These variables are excluded from our linear regression analysis. We select the following variables for our model: 'price,' 'room_type,' 'accommodates,' 'bedrooms,' 'beds,' 'host_is_superhost,' 'review_scores_rating,' 'number_of_reviews,' 'availability_365,' and 'instant_bookable.' Although 'availability_365' and 'instant_bookable' might intuitively correlate with price, we retain them in the first phase. 'host_is_superhost' indicates a host's popularity and extra services, potentially having an indirect relationship with the price. Furthermore, 'review_scores_rating' and 'number_of_reviews' reflect the property's popularity, influencing price dynamics.
 
 Next, we transform the character variable into a numeric format, removing the '$' sign and retaining only the numeric string in the values. A log transformation is then applied to the price variable to mitigate the effects of outliers, especially in larger transaction
@@ -225,10 +225,10 @@ cor_matrix1 <- cor(mv_data1)
 # Create a correlation plot
 corrplot(cor_matrix1, method = "color", type = "upper", tl.col = "black", tl.srt = 45,number.cex = 0.7)
 ```
-S II I A:
+
 Before fitting all variables into the model, we check for collinearity between them using a correlation plot. A correlation higher than 0.6 is considered significant. From the plot, we observe high correlations among 'accommodates' and 'beds,' 'accommodates' and 'bedrooms,' and 'room_typePrivate room' and 'room_type entire room.' Consequently, we decide to exclude 'accommodates' and 'room_typePrivate room,' resulting in no high correlation in our price model.
 
-Step 2 Part 1 Task B
+
 ```{r}
 set.seed(699)
 train.index <- sample(c(1:nrow(mv_data1)), nrow(mv_data1)*0.59)
@@ -241,7 +241,7 @@ model <- lm(log_price ~ . - price, data = train.df)
 # Summary of the model
 summary(model)
 ```
-S II I B:
+
 So our MLR equation is consist several variables with being the minimum of correlation between variables. with considering the adding the intercept equation, the wholw equation is describe as 3.77929+0.27113* bedrooms+0.03728* beds+0.01825* host_is_superhost+0.03091* number_of_reviews-0.07905* number_of_reviews+ 0.12548* availability_365+0.17953* instant_bookable+0.26160* room_typeEntire home/apt+ 0.29225* room_typeHotel room
 In the model, bedrooms, beds, number_of_reviewsand availability_365 is numerical variables which number_of_reviewsand availability_365 is scaled for less overfitting. All the other is binary values which are trasferred from the categorical vaiables. 
 The regression summary reveals some variables with higher p-values than our threshold of 0.05. 'host_is_superhost,' 'review_scores_rating,' and 'room_typeHotel room' are not statistically significant to the dependent variable 'price.' Notably, 'bedrooms' has a coefficient of 0.271, aligning with the intuitive understanding that more rooms impact pricing. Surprisingly, 'number_of_reviews' is associated with a decrease in price.
@@ -252,7 +252,7 @@ summary(backward)
 ```
 Performing backward elimination to remove predictors with the highest p-values results in the exclusion of 'host_is_superhost,' 'review_scores_rating,' and 'room_typeHotel room.' This slightly increases R-squared but has minimal impact on adjusted R-squared.
 
-Step 2 Part 1 Task C
+
 ```{r}
 train_predictions <- exp(predict(backward, newdata=train.df))
 valid_predictions <- exp(predict(backward, newdata=valid.df))
@@ -265,11 +265,10 @@ train_accuracy
 valid_accuracy <- accuracy(valid_predictions, valid.df$price)
 valid_accuracy
 ```
-S II I C:
+
 Further performance analysis indicates a mean error of 21.73 on the training set, suggesting a slight overprediction tendency. The RMSE and MAE values are 251.65 and 55.08, respectively. On the test set, the model shows a mean error of 43.48, higher RMSE (427.85) and MAE (71.64), with a lower MPE (-4.86%) and a similar MAPE (37.13%). These results signal a need for refinement to enhance predictive accuracy, especially on unseen data.
 
-Step 3 Classification
-Step 3 Part 1 Task A
+
 ```{r}
 mv$price <- as.numeric(gsub("[\\$,]", "", mv$price))
 #extract beds and bedrooms
@@ -355,12 +354,12 @@ ggplot(accuracy.df, aes(x=k, y=accuracy)) +
 
 confusionMatrix(knn.pred, valid.norm.df$amenities, positive = '1')
 ```
-Step III: Classification Part I B: 
+
 To begin with, we started thinking of the target variable which is amenities. The amenities column contains all unique value which is hard to predict for any model. Thus, we decided to choose kitchen as the outcome class since having a own kitchen is usually the signal of luxury and big apartments. 
 
 After dealing with outcome classes, feature selection becomes our priority. Since K nearest neighbor is distance-based model, numeric inputs are the only type that is acceptable under this model. Six features that seems to be logical for predicting luxury apartments were our first choice. After implementing t test of each of those features, all six features are left with contributions to the predictive power. Moreover, we used the above process to find and plot the best k for our model. It turns out that 3 is the best k parameter. According to the confusion matrix of the knn model, the accuracy is 89.1% which is relatively good here. In addition, the TPR is 96% which shows a perfect performance of predicting positive class.  
 
-Step 3 Part 2 Task A
+
 ```{r}
 library(e1071)
 mv_nb<-mv %>% select(review_scores_rating,host_is_superhost,host_response_time,host_acceptance_rate,room_type)
@@ -392,7 +391,7 @@ fitnb
 To make a Naïve Bayes model to predict the review score rating for each house, three equal frequency bins were applied to review_score_rating variables to assign three groups for the variable, which were low, mid, and high that represent low review rating, mid-level rating, and high rating. Then, features such as whether the host is a super host, time the host take a response, the acceptance rate, and the room type were chosen to predict the review score rating because a host service to customers can play a important role in affecting customers rating to the house. It is also important that the type of the house can affect the living experience of customers. Therefore, these variables can help in determining the level of review rating for Airbnb houses.
 
 
-Step 3 Part 2 Task B
+
 ```{r}
 fakehouse<-data.frame(
   host_is_superhost="TRUE",
@@ -405,7 +404,7 @@ prediction
 ```
 The fictional person is a superhost with a response time within an hour, high acceptance rate, and listing private room. The model predict that this person will receive mid-level review score.
 
-Step 3 Part 2 Task C
+
 ```{r}
 fitnb
 train_predictions <- predict(fitnb, train.fit)
@@ -420,13 +419,13 @@ validation_accuracy <- sum(diag(validation_cm)) / sum(validation_cm)
 train_accuracy
 validation_accuracy
 ```
-S III II D:
+
 After the model is conducted and tested, the performance was assessed by accuracy rate. Based on the model performance, the train set had an accuracy rate of 0.4274 while the validation set had an accuracy rate of 0.4268. The difference between in accuracy rate between train set and validation set is similar, which suggests that there are no potential overfitting problems.
 
 It is also important that since the outcome variable is mostly evenly distributed, a naive model that always predicts the most common class would have an accuracy of about 25%. In this case, a 43% accuracy would be significantly better than the baseline.
 
 
-Step 3 Part 3 
+
 ```{r}
 #tree model
 library(rpart)
@@ -464,8 +463,7 @@ print(cf_tree_valid)
 ```
 Classification, Part III D: We started our modeling process by searching for inputs that might seem logic in predicting whether it is instantly bookable or not. We decided to take all the variables that are related to availability and nights as inputs here. After cross-validation, we implemented those best hyper parameters for the tree model and refit the data as needed. The tree automatically located the most important feature here which is minimum minimum nights based on the graph above. According to the confusion matrix above, the model has an accuracy of 0.65 and TPR rate of 0.57 which is relative feasible for predicting. 
 
-Step 4 Cluster 
-Step 4 Task A and B
+
 ```{r}
 mv_cluster<- select(mv,id,number_of_beds,price)
 sum(is.na(mv_cluster))
@@ -505,7 +503,7 @@ The method of clustering used is k-means cluster. Since values of price variable
 
 The four different clusters were given the following names, high end house, luxury, more bed normal price, and normal bed normal price. High end house represents houses that have higher prices. Luxury represents houses that charge extremely high prices for just 1 night. More bed normal price represents houses that have more than 3 beds with normal price. Normal bed normal price represents houses that have about 0 to 2 beds with normal price.
 
-Step 4 Part 3
+
 ```{r}
 ggplot(mv_cluster,aes(x=cluster,y=price))+geom_boxplot()
 mv_cluster_nol<-mv_cluster %>% filter(cluster !="Luxury")
@@ -525,7 +523,7 @@ To have a clearer look about the number of beds shown in the dataset, a violin p
 
 
 
-Step V Conclusion:
+
 
 The data preparation and exploration process is crucial for the rest of the project. It is good to check what each column contains, their data type, and if there are any redundancy or inter-dependency.  For example, the URL columns will not help with data analysis and there are many columns that all contain the bedroom/bed number information in our case, which can be taken out to make the future process easier. For property rental companies like Airbnb, it is also important to reflect on whether tracking certain metrics are necessary, since it does cost resource to do so and might turn out to be a waste. 
 
